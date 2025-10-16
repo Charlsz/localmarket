@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/lib/store/cart'
 import ShoppingCart from '@/components/cart/ShoppingCart'
@@ -15,8 +15,14 @@ import {
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const getTotalItems = useCartStore((state) => state.getTotalItems)
   const totalItems = getTotalItems()
+
+  // Fix hydration error - solo renderizar el contador en el cliente
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <>
@@ -75,7 +81,7 @@ export default function Header() {
                 className="relative p-2 text-gray-700 hover:text-green-600 transition-colors"
               >
                 <ShoppingCartIcon className="h-6 w-6" />
-                {totalItems > 0 && (
+                {mounted && totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {totalItems}
                   </span>
