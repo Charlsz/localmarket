@@ -4,9 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/lib/store/cart'
 import ShoppingCart from '@/components/cart/ShoppingCart'
+import UserMenu from '@/components/auth/UserMenu'
 import { 
   ShoppingCartIcon, 
-  UserIcon, 
   MagnifyingGlassIcon,
   Bars3Icon,
   XMarkIcon
@@ -82,10 +82,8 @@ export default function Header() {
                 )}
               </button>
 
-              {/* User Profile */}
-              <Link href="/perfil" className="p-2 text-gray-700 hover:text-green-600 transition-colors">
-                <UserIcon className="h-6 w-6" />
-              </Link>
+              {/* User Menu */}
+              <UserMenu />
 
               {/* Mobile menu button */}
               <button
