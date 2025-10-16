@@ -4,11 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "export": "next build && next export",
-    "deploy": "npm run build && echo 'Build completed successfully!'"
+    "lint": "eslint"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

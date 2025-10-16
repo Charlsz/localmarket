@@ -1,13 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // Removido output: "export" para permitir API Routes
+  // output: "standalone" se usa automáticamente en Vercel
   trailingSlash: true,
   images: {
     unoptimized: true
   },
-  basePath: process.env.NODE_ENV === 'production' ? '/localmarket' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/localmarket/' : '',
+  // Removido basePath para deployment estándar en Vercel
+  // basePath: process.env.NODE_ENV === 'production' ? '/localmarket' : '',
+  // assetPrefix: process.env.NODE_ENV === 'production' ? '/localmarket/' : '',
 };
 
 export default nextConfig;
