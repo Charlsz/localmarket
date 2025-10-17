@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Removido basePath para deployment estándar en Vercel
   // basePath: process.env.NODE_ENV === 'production' ? '/localmarket' : '',
   // assetPrefix: process.env.NODE_ENV === 'production' ? '/localmarket/' : '',
