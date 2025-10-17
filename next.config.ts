@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Removido output: "export" para permitir API Routes
-  // output: "standalone" se usa automáticamente en Vercel
-  trailingSlash: true,
+  // Configuración optimizada para Vercel
   images: {
-    unoptimized: true
+    unoptimized: true,
+    domains: ['localhost'],
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -13,9 +12,36 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Removido basePath para deployment estándar en Vercel
-  // basePath: process.env.NODE_ENV === 'production' ? '/localmarket' : '',
-  // assetPrefix: process.env.NODE_ENV === 'production' ? '/localmarket/' : '',
+  // Asegurar que las rutas se manejen correctamente
+  trailingSlash: false,
+  // Optimización para serverless
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  // Configuración para Vercel Functions
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

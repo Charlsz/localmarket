@@ -8,6 +8,7 @@ import type { Order, OrderWithItems } from '@/lib/types/database';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
 
 export default function MisOrdenesPage() {
   const router = useRouter();
