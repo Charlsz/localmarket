@@ -1,51 +1,114 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ProductCard from '@/components/products/ProductCard'
 import { ChevronRightIcon, ShieldCheckIcon, TruckIcon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { getCurrentUser } from '@/lib/auth/client'
+import type { Profile } from '@/lib/types/database'
 
-// Mock data for demonstration
+// Mock data for demonstration (no se usará si el usuario está autenticado)
 const featuredProducts = [
   {
     id: '1',
+    provider_id: 'provider1',
     name: 'Tomates cherry orgánicos',
     description: 'Tomates cherry cultivados de forma orgánica, perfectos para ensaladas',
     price: 4.50,
-    category: 'Verduras',
-    images: ['/api/placeholder/300/300'],
-    producer_id: 'producer1',
+    category: 'vegetables' as const,
+    unit: 'kg',
     stock: 25,
-    rating_avg: 4.8,
+    image_url: '/api/placeholder/300/300',
+    images: ['/api/placeholder/300/300'],
+    is_active: true,
+    is_featured: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
   {
     id: '2',
+    provider_id: 'provider2',
     name: 'Queso artesanal de cabra',
     description: 'Queso cremoso de cabra elaborado artesanalmente en nuestra granja',
     price: 12.90,
-    category: 'Lácteos',
-    images: ['/api/placeholder/300/300'],
-    producer_id: 'producer2',
+    category: 'dairy' as const,
+    unit: 'kg',
     stock: 8,
-    rating_avg: 4.9,
+    image_url: '/api/placeholder/300/300',
+    images: ['/api/placeholder/300/300'],
+    is_active: true,
+    is_featured: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
   {
     id: '3',
+    provider_id: 'provider3',
     name: 'Miel de acacia pura',
     description: 'Miel 100% natural de flores de acacia, extraída sin aditivos',
     price: 8.75,
-    category: 'Endulzantes',
-    images: ['/api/placeholder/300/300'],
-    producer_id: 'producer3',
+    category: 'honey' as const,
+    unit: 'kg',
     stock: 15,
-    rating_avg: 4.7,
+    image_url: '/api/placeholder/300/300',
+    images: ['/api/placeholder/300/300'],
+    is_active: true,
+    is_featured: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }
 ]
 
 export default function Home() {
+  const router = useRouter()
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    checkAuthAndRedirect()
+  }, [])
+
+  const checkAuthAndRedirect = async () => {
+    try {
+      const { profile: userProfile } = await getCurrentUser()
+      
+      if (userProfile) {
+        // Usuario autenticado - redirigir según rol
+        if (userProfile.role === 'provider') {
+          router.push('/dashboard/productos')
+        } else {
+          router.push('/productos')
+        }
+      } else {
+        // No autenticado - mostrar landing page
+        setProfile(null)
+      }
+    } catch (error) {
+      console.error('Error checking auth:', error)
+      setProfile(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Mostrar spinner mientras se verifica la autenticación
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Si hay perfil (usuario autenticado), no mostrar nada (está redirigiendo)
+  if (profile) {
+    return null
+  }
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}

@@ -98,14 +98,40 @@ SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-### **4. Ejecutar en desarrollo**
+### **4. Configurar base de datos**
+
+#### **Opción A: Usando datos de prueba (Recomendado para desarrollo)**
+
+1. **Registra proveedores desde la UI** (ver `GUIA_DATOS_PRUEBA.md`)
+2. **Obtén los UUIDs de los proveedores:**
+   ```sql
+   SELECT id, email FROM profiles WHERE role = 'provider';
+   ```
+3. **Inserta productos de prueba:**
+   - Edita `database/insert_products_quick.sql`
+   - Reemplaza los UUIDs con los reales
+   - Ejecuta en Supabase SQL Editor
+4. **Agrega imágenes:**
+   - Ejecuta `database/add_images_to_products.sql`
+
+#### **Opción B: Usando tu propio esquema**
+
+1. Ejecuta el esquema base:
+   ```sql
+   -- En Supabase SQL Editor
+   \i database/schema.sql
+   ```
+
+Ver documentación completa en `GUIA_DATOS_PRUEBA.md`
+
+### **5. Ejecutar en desarrollo**
 ```bash
 npm run dev
 ```
 
 La aplicación estará disponible en `http://localhost:3000`
 
-### **5. Build para producción**
+### **6. Build para producción**
 ```bash
 npm run build
 ```
@@ -309,6 +335,25 @@ GitHub Push → Build (Next.js) → Test → Deploy (GitHub Pages)
 - **Repositorio:** [github.com/Charlsz/localmarket](https://github.com/Charlsz/localmarket)
 - **Issues:** [Reportar problemas](https://github.com/Charlsz/localmarket/issues)
 - **Documentación:** [Wiki del proyecto](https://github.com/Charlsz/localmarket/wiki)
+
+## 📚 Documentación adicional
+
+### **Guías de configuración:**
+- `GUIA_DATOS_PRUEBA.md` - Cómo poblar la base de datos con datos de prueba
+- `GUIA_IMAGENES.md` - Cómo agregar imágenes a productos
+- `COMO_EJECUTAR.md` - Instrucciones detalladas de ejecución
+
+### **Documentación técnica:**
+- `SISTEMA_COMPLETO_RESUMEN.md` - Arquitectura completa del sistema
+- `FIX_SISTEMA_PEDIDOS.md` - Detalles del sistema de órdenes
+- `RESUMEN_EJECUTIVO.md` - Resumen ejecutivo del proyecto
+
+### **Scripts de base de datos:**
+- `database/schema.sql` - Esquema completo de la base de datos
+- `database/FIX_DEFINITIVO_RECURSION.sql` - Fix para políticas RLS
+- `database/insert_products_quick.sql` - Insertar productos de prueba
+- `database/add_images_to_products.sql` - Agregar imágenes a productos
+- `database/verify_system.sql` - Verificar estado del sistema
 
 ---
 

@@ -17,6 +17,9 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
   const [imageError, setImageError] = useState(false)
   const addItem = useCartStore((state) => state.addItem)
 
+  // Obtener la primera imagen disponible
+  const productImage = product.image_url || (product.images && product.images.length > 0 ? product.images[0] : null)
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault() // Prevent navigation when clicking the button
     e.stopPropagation()
@@ -26,8 +29,8 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.images[0] || '/placeholder-product.jpg',
-        producer_id: product.producer_id,
+        image: productImage || '/placeholder-product.jpg',
+        producer_id: product.provider_id,
         stock: product.stock
       })
     }
@@ -57,12 +60,28 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
   }
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-CR', {
       style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2
+      currency: 'CRC',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(price)
   }
+
+  // Mapeo de categorías
+  const categoryMap: { [key: string]: string } = {
+    'vegetables': 'Vegetales',
+    'fruits': 'Frutas',
+    'dairy': 'Lácteos',
+    'meat': 'Carnes',
+    'bakery': 'Panadería',
+    'honey': 'Miel',
+    'preserves': 'Conservas',
+    'crafts': 'Artesanías',
+    'other': 'Otros'
+  }
+
+  const displayCategory = categoryMap[product.category] || product.category
 
   return (
     <div className={`group relative bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden ${
@@ -85,9 +104,9 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
       <Link href={`/productos/${product.id}`}>
         {/* Product Image */}
         <div className="aspect-square relative overflow-hidden bg-gray-100">
-          {!imageError && product.images[0] ? (
+          {!imageError && productImage ? (
             <Image
-              src={product.images[0]}
+              src={productImage}
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -110,7 +129,7 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
           {/* Category */}
           <div className="mb-2">
             <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
-              {product.category}
+              {displayCategory}
             </span>
           </div>
 
@@ -121,29 +140,17 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
 
           {/* Description */}
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {product.description}
+            {product.description || 'Sin descripción'}
           </p>
 
-          {/* Rating */}
-          {product.rating_avg && (
-            <div className="flex items-center mb-3">
-              <div className="flex items-center">
-                {renderStars(product.rating_avg)}
-              </div>
-              <span className="ml-2 text-sm text-gray-600">
-                ({product.rating_avg.toFixed(1)})
-              </span>
-            </div>
-          )}
-
-          {/* Price and Stock */}
+          {/* Price and Unit */}
           <div className="flex items-center justify-between mb-3">
             <div>
               <span className="text-lg font-bold text-gray-900">
                 {formatPrice(product.price)}
               </span>
               <span className="text-sm text-gray-500 ml-1">
-                / unidad
+                / {product.unit}
               </span>
             </div>
             <div className="text-sm text-gray-600">
