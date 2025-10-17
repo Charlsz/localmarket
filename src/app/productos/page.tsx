@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import ProductCard from '@/components/products/ProductCard'
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { createClient } from '@/lib/supabase/client'
 import { Product } from '@/lib/types/database'
 
@@ -120,7 +120,6 @@ export default function ProductosPage() {
   const [selectedCategory, setSelectedCategory] = useState('Todas las categorías')
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   const [sortBy, setSortBy] = useState('name')
-  const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
     fetchProducts()
@@ -212,60 +211,57 @@ export default function ProductosPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Productos locales
-          </h1>
-          <p className="text-lg text-gray-600">
-            Descubre productos frescos y artesanales de productores de tu región
-          </p>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          {/* Search Bar */}
-          <div className="relative mb-4">
-            <input
-              type="text"
-              placeholder="Buscar productos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-            <MagnifyingGlassIcon className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Productos Locales
+            </h1>
+            <p className="text-xl text-green-100 max-w-2xl mx-auto">
+              Conecta directamente con agricultores, artesanos y productores de tu región
+            </p>
           </div>
 
-          {/* Filter Toggle Button - Mobile */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="md:hidden w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 mb-4"
-          >
-            <FunnelIcon className="h-5 w-5 mr-2" />
-            Filtros
-          </button>
-
-          {/* Filters */}
-          <div className={`grid grid-cols-1 md:grid-cols-4 gap-4 ${showFilters ? 'block' : 'hidden md:grid'}`}>
-            {/* Category Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Categoría
-              </label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+          {/* Search and Filters */}
+          <div className="max-w-4xl mx-auto mt-8">
+            {/* Search Bar */}
+            <div className="relative mb-6">
+              <MagnifyingGlassIcon className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar por nombre, ubicación o tipo de producto..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-white focus:outline-none"
+              />
             </div>
 
+            {/* Category Filters */}
+            <div className="flex flex-wrap gap-2 justify-center">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 rounded-full font-medium transition-all ${
+                    selectedCategory === category
+                      ? 'bg-white text-green-600 shadow-lg'
+                      : 'bg-green-500 text-white hover:bg-green-400'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* Additional Filters */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Price Range */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

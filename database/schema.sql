@@ -303,6 +303,32 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER set_order_number_trigger BEFORE INSERT ON orders
   FOR EACH ROW EXECUTE FUNCTION set_order_number();
 
+-- Función para crear perfil automáticamente al registrar usuario
+CREATE OR REPLACE FUNCTION create_profile_for_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO profiles (id, email, full_name, role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'role', 'client')::user_role
+  );
+  RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Si hay error, crear perfil mínimo
+    INSERT INTO profiles (id, email, role)
+    VALUES (NEW.id, NEW.email, 'client');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger para crear perfil automáticamente
+CREATE TRIGGER create_profile_on_signup
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION create_profile_for_user();
+
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS)
 -- =====================================================

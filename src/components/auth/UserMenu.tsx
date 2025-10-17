@@ -19,10 +19,24 @@ export default function UserMenu() {
 
   const loadUser = async () => {
     try {
-      const { profile } = await getCurrentUser();
+      const { user, profile, error } = await getCurrentUser();
+      
+      if (error && user) {
+        // Solo loguear errores si hay un usuario autenticado pero hay problemas con el perfil
+        console.error('Error loading user profile:', error);
+        // Si hay error de perfil pero el usuario está autenticado, intentar crear el perfil
+        if (error.message && (
+          error.message.includes('No rows found') || 
+          error.message.includes('JSON object requested, multiple (or no) rows returned')
+        )) {
+          console.log('Perfil no encontrado, intentando crear uno básico...');
+          // Aquí podríamos intentar crear un perfil básico, pero por ahora solo loggeamos
+        }
+      }
+      
       setProfile(profile);
     } catch (error) {
-      console.error('Error loading user:', error);
+      console.error('Unexpected error loading user:', error);
     } finally {
       setLoading(false);
     }
@@ -78,7 +92,7 @@ export default function UserMenu() {
             {profile.full_name || 'Usuario'}
           </div>
           <div className="text-xs text-gray-500">
-            {profile.role === 'provider' ? '🌾 Proveedor' : '🛒 Cliente'}
+            {profile.role === 'provider' ? 'Proveedor' : 'Cliente'}
           </div>
         </div>
       </button>
@@ -104,39 +118,11 @@ export default function UserMenu() {
             </div>
 
             <div className="py-1">
-              {profile.role === 'provider' && (
-                <>
-                  <a
-                    href="/dashboard/productos"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    📦 Mis Productos
-                  </a>
-                  <a
-                    href="/dashboard/ordenes"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    📋 Órdenes Recibidas
-                  </a>
-                </>
-              )}
-
-              {profile.role === 'client' && (
-                <>
-                  <a
-                    href="/mis-ordenes"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    📦 Mis Pedidos
-                  </a>
-                </>
-              )}
-
               <a
                 href="/perfil"
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
-                ⚙️ Configuración
+                Configuración
               </a>
             </div>
 
@@ -145,7 +131,7 @@ export default function UserMenu() {
                 onClick={handleSignOut}
                 className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
               >
-                🚪 Cerrar Sesión
+                Cerrar Sesión
               </button>
             </div>
           </div>

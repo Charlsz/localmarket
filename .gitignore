@@ -45,3 +45,10 @@ next-env.d.ts
 *-backup.*
 *-temp.*
 *.tmp
+
+# Documentation files (except README)
+*.md
+!README.md
+
+# SQL files
+*.sql

@@ -1,23 +1,46 @@
-import { Suspense } from 'react'
+'use client'
+
+import { Suspense, useState } from 'react'
 import ProvidersGrid from '@/components/providers/ProvidersGrid'
-import ProvidersHeader from '@/components/providers/ProvidersHeader'
 import { 
   UserGroupIcon,
   MapPinIcon,
   CheckBadgeIcon,
-  SparklesIcon
+  SparklesIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 
-export const metadata = {
-  title: 'Productores Locales - LocalMarket',
-  description: 'Conoce a los productores y artesanos locales que hacen posible LocalMarket',
-}
-
 export default function ProductoresPage() {
+  const [searchTerm, setSearchTerm] = useState('')
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <ProvidersHeader />
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-4">
+              Nuestros Productores
+            </h1>
+            <p className="text-xl text-green-100 max-w-2xl mx-auto mb-8">
+              Conoce a las personas detrás de los productos que amas
+            </p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="max-w-md mx-auto">
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar productores..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-white text-gray-900 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-white focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Stats Section */}
       <section className="bg-white py-12 shadow-sm">
@@ -75,7 +98,7 @@ export default function ProductoresPage() {
         </div>
 
         <Suspense fallback={<LoadingSkeleton />}>
-          <ProvidersGrid />
+          <ProvidersGrid searchTerm={searchTerm} />
         </Suspense>
       </section>
 

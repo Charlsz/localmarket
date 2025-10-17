@@ -24,7 +24,11 @@ interface Provider {
   categories?: string[]
 }
 
-export default function ProvidersGrid() {
+interface ProvidersGridProps {
+  searchTerm?: string
+}
+
+export default function ProvidersGrid({ searchTerm = '' }: ProvidersGridProps) {
   const [providers, setProviders] = useState<Provider[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -40,12 +44,11 @@ export default function ProvidersGrid() {
 
       const supabase = createClient()
 
-      // Obtener proveedores verificados desde Supabase
+      // Obtener todos los proveedores desde Supabase
       const { data: providersData, error: providersError } = await supabase
         .from('profiles')
         .select('id, business_name, business_description, business_address, avatar_url, is_verified')
         .eq('role', 'provider')
-        .eq('is_verified', true)
         .order('business_name')
 
       if (providersError) {
@@ -84,6 +87,15 @@ export default function ProvidersGrid() {
     }
   }
 
+  // Filter providers based on search term
+  const filteredProviders = providers.filter(provider => {
+    if (!searchTerm) return true
+    const term = searchTerm.toLowerCase()
+    return provider.business_name.toLowerCase().includes(term) ||
+           (provider.business_description && provider.business_description.toLowerCase().includes(term)) ||
+           (provider.business_address && provider.business_address.toLowerCase().includes(term))
+  })
+
   if (loading) {
     return <LoadingSkeleton />
   }
@@ -108,15 +120,15 @@ export default function ProvidersGrid() {
     )
   }
 
-  if (providers.length === 0) {
+  if (filteredProviders.length === 0) {
     return (
       <div className="text-center py-12">
         <ShoppingBagIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          No hay productores disponibles
+          {searchTerm ? 'No se encontraron productores' : 'No hay productores disponibles'}
         </h3>
         <p className="text-gray-600">
-          Pronto tendremos más productores locales disponibles
+          {searchTerm ? 'Intenta con otro término de búsqueda' : 'Pronto tendremos más productores locales disponibles'}
         </p>
       </div>
     )
@@ -124,7 +136,7 @@ export default function ProvidersGrid() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {providers.map((provider) => (
+      {filteredProviders.map((provider) => (
         <ProviderCard key={provider.id} provider={provider} />
       ))}
     </div>
