@@ -1,10 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ProductCard from '@/components/products/ProductCard'
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline'
+import { createClient } from '@/lib/supabase/client'
+import { Product } from '@/lib/types/database'
 
-// Mock data for demonstration
+// Mapeo de categorías de inglés a español
+const categoryMap: { [key: string]: string } = {
+  'vegetables': 'Vegetales',
+  'fruits': 'Frutas',
+  'dairy': 'Lácteos',
+  'meat': 'Carnes',
+  'bakery': 'Panadería',
+  'honey': 'Miel',
+  'preserves': 'Conservas',
+  'crafts': 'Artesanías',
+  'other': 'Otros'
+}
+
+// Mock data for demonstration (fallback)
 const mockProducts = [
   {
     id: '1',
@@ -88,28 +103,66 @@ const mockProducts = [
 
 const categories = [
   'Todas las categorías',
-  'Verduras',
+  'Vegetales',
   'Frutas',
   'Lácteos',
   'Panadería',
-  'Condimentos',
-  'Endulzantes'
+  'Miel',
+  'Artesanías',
+  'Otros'
 ]
 
 export default function ProductosPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Todas las categorías')
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   const [sortBy, setSortBy] = useState('name')
   const [showFilters, setShowFilters] = useState(false)
 
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const supabase = createClient()
+
+      // Obtener productos activos desde Supabase
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .order('name')
+
+      if (productsError) {
+        console.error('Error fetching products:', productsError)
+        setError('Error al cargar los productos')
+        return
+      }
+
+      setProducts(productsData || [])
+    } catch (error) {
+      console.error('Error fetching products:', error)
+      setError('Error al cargar los productos')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Filter products based on search and filters
-  const filteredProducts = mockProducts.filter(product => {
+  const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase())
+                         (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()))
     
+    const productCategory = categoryMap[product.category] || product.category
     const matchesCategory = selectedCategory === 'Todas las categorías' || 
-                           product.category === selectedCategory
+                           productCategory === selectedCategory
     
     const matchesPrice = (!priceRange.min || product.price >= parseFloat(priceRange.min)) &&
                         (!priceRange.max || product.price <= parseFloat(priceRange.max))
@@ -124,13 +177,38 @@ export default function ProductosPage() {
         return a.price - b.price
       case 'price-high':
         return b.price - a.price
-      case 'rating':
-        return (b.rating_avg || 0) - (a.rating_avg || 0)
       case 'name':
       default:
         return a.name.localeCompare(b.name)
     }
   })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando productos...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">{error}</h3>
+          <button
+            onClick={fetchProducts}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Intentar de nuevo
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

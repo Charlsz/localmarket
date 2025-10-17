@@ -10,6 +10,7 @@ import {
   StarIcon 
 } from '@heroicons/react/24/outline'
 import { CheckBadgeIcon as CheckBadgeIconSolid } from '@heroicons/react/24/solid'
+import { createClient } from '@/lib/supabase/client'
 
 interface Provider {
   id: string
@@ -26,6 +27,7 @@ interface Provider {
 export default function ProvidersGrid() {
   const [providers, setProviders] = useState<Provider[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProviders()
@@ -33,82 +35,50 @@ export default function ProvidersGrid() {
 
   const fetchProviders = async () => {
     try {
-      // Por ahora, mostramos datos de ejemplo
-      // Cuando esté configurado Supabase, aquí harías la query real
-      const mockProviders: Provider[] = [
-        {
-          id: '1',
-          business_name: 'Granja Don José',
-          business_description: 'Productores de vegetales orgánicos desde hace 20 años. Cultivamos con amor y respeto por la tierra.',
-          business_address: 'San José, Costa Rica',
-          avatar_url: null,
-          is_verified: true,
-          product_count: 24,
-          avg_rating: 4.8,
-          categories: ['Vegetales', 'Frutas']
-        },
-        {
-          id: '2',
-          business_name: 'Miel del Valle',
-          business_description: 'Miel pura y artesanal de abejas locales. Sin aditivos, directo de la colmena a tu mesa.',
-          business_address: 'Cartago, Costa Rica',
-          avatar_url: null,
-          is_verified: true,
-          product_count: 8,
-          avg_rating: 5.0,
-          categories: ['Miel', 'Derivados']
-        },
-        {
-          id: '3',
-          business_name: 'Panadería Artesanal Luna',
-          business_description: 'Pan recién horneado cada día. Masa madre tradicional y recetas familiares.',
-          business_address: 'Heredia, Costa Rica',
-          avatar_url: null,
-          is_verified: true,
-          product_count: 15,
-          avg_rating: 4.9,
-          categories: ['Panadería', 'Repostería']
-        },
-        {
-          id: '4',
-          business_name: 'Lácteos La Vaca Feliz',
-          business_description: 'Productos lácteos frescos y naturales. Nuestras vacas pastan libremente en campos verdes.',
-          business_address: 'Alajuela, Costa Rica',
-          avatar_url: null,
-          is_verified: true,
-          product_count: 12,
-          avg_rating: 4.7,
-          categories: ['Lácteos', 'Quesos']
-        },
-        {
-          id: '5',
-          business_name: 'Artesanías del Bosque',
-          business_description: 'Productos artesanales hechos a mano con materiales naturales y sostenibles.',
-          business_address: 'Limón, Costa Rica',
-          avatar_url: null,
-          is_verified: false,
-          product_count: 18,
-          avg_rating: 4.6,
-          categories: ['Artesanías', 'Decoración']
-        },
-        {
-          id: '6',
-          business_name: 'Finca Frutas Tropicales',
-          business_description: 'Frutas frescas tropicales cultivadas con métodos sostenibles y orgánicos.',
-          business_address: 'Puntarenas, Costa Rica',
-          avatar_url: null,
-          is_verified: true,
-          product_count: 30,
-          avg_rating: 4.8,
-          categories: ['Frutas', 'Orgánicos']
-        },
-      ]
+      setLoading(true)
+      setError(null)
 
-      // Simular delay de carga
-      await new Promise(resolve => setTimeout(resolve, 500))
-      setProviders(mockProviders)
+      const supabase = createClient()
+
+      // Obtener proveedores verificados desde Supabase
+      const { data: providersData, error: providersError } = await supabase
+        .from('profiles')
+        .select('id, business_name, business_description, business_address, avatar_url, is_verified')
+        .eq('role', 'provider')
+        .eq('is_verified', true)
+        .order('business_name')
+
+      if (providersError) {
+        console.error('Error fetching providers:', providersError)
+        setError('Error al cargar los productores')
+        return
+      }
+
+      if (!providersData || providersData.length === 0) {
+        setProviders([])
+        return
+      }
+
+      // Para cada proveedor, contar sus productos activos
+      const providersWithCounts = await Promise.all(
+        providersData.map(async (provider) => {
+          const { count } = await supabase
+            .from('products')
+            .select('*', { count: 'exact', head: true })
+            .eq('provider_id', provider.id)
+            .eq('is_active', true)
+
+          return {
+            ...provider,
+            product_count: count || 0,
+          }
+        })
+      )
+
+      setProviders(providersWithCounts)
     } catch (error) {
       console.error('Error fetching providers:', error)
+      setError('Error al cargar los productores')
     } finally {
       setLoading(false)
     }
@@ -116,6 +86,26 @@ export default function ProvidersGrid() {
 
   if (loading) {
     return <LoadingSkeleton />
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <ShoppingBagIcon className="h-16 w-16 text-red-400 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          {error}
+        </h3>
+        <p className="text-gray-600 mb-4">
+          Hubo un problema al conectar con la base de datos
+        </p>
+        <button
+          onClick={fetchProviders}
+          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Intentar de nuevo
+        </button>
+      </div>
+    )
   }
 
   if (providers.length === 0) {
