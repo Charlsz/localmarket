@@ -65,7 +65,7 @@ export async function GET(
 
     return NextResponse.json({
       data: {
-        ...provider,
+        ...(provider as any),
         products: productList,
         stats
       }
