@@ -60,9 +60,9 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
   }
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', {
+    return new Intl.NumberFormat('es-CO', {
       style: 'currency',
-      currency: 'CRC',
+      currency: 'COP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(price)

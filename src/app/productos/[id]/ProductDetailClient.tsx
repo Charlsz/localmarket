@@ -88,7 +88,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       <div className="flex items-center justify-between py-2 border-t border-gray-200">
         <span className="text-lg font-semibold text-gray-900">Total:</span>
         <span className="text-2xl font-bold text-green-600">
-          ₡{totalPrice.toLocaleString('es-CR')}
+          ${totalPrice.toLocaleString('es-CO')}
         </span>
       </div>
 
