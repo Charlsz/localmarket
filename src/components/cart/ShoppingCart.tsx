@@ -17,10 +17,11 @@ export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
   const { items, updateQuantity, removeItem, clearCart, getTotalItems, getTotalPrice } = useCartStore()
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-CO', {
       style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(price)
   }
 

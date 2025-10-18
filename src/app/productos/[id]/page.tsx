@@ -13,7 +13,7 @@ interface ProductPageProps {
 // Función para obtener datos del producto desde la API
 async function getProduct(id: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
     const response = await fetch(`${baseUrl}/api/products/${id}`, {
       cache: 'no-store' // Para desarrollo, en producción usar cache apropiado
     })
@@ -197,9 +197,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <span className="text-3xl font-bold text-gray-900">
-                    ₡{product.price.toLocaleString('es-CR')}
-                  </span>
+                <span className="text-3xl font-bold text-gray-900">
+                  ${product.price.toLocaleString('es-CO')}
+                </span>
                   <span className="text-gray-500 ml-2">
                     / {product.unit}
                   </span>
