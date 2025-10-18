@@ -43,7 +43,8 @@ interface ProviderData {
 // Función para obtener datos del proveedor desde la API
 async function getProvider(id: string): Promise<ProviderData | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/providers/${id}`, {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const response = await fetch(`${baseUrl}/api/providers/${id}`, {
       cache: 'no-store' // Para desarrollo, en producción usar cache apropiado
     })
 
