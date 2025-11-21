@@ -33,12 +33,14 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
   // Obtener la primera imagen disponible
   const productImage = product.image_url || (product.images && product.images.length > 0 ? product.images[0] : null)
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
-    // Verificar si el usuario está autenticado
-    if (!isAuthenticated) {
+    // Verificar si el usuario está autenticado en tiempo real
+    const { user } = await getCurrentUser()
+    
+    if (!user) {
       // Redirigir a login
       router.push('/login?redirect=/productos')
       return

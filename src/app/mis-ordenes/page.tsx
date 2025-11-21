@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth/client';
 import { createClient } from '@/lib/supabase/client';
@@ -10,7 +10,7 @@ import { CheckCircleIcon } from '@heroicons/react/24/solid';
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
 
-export default function MisOrdenesPage() {
+function MisOrdenesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState<any>(null);
@@ -316,5 +316,20 @@ export default function MisOrdenesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MisOrdenesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando órdenes...</p>
+        </div>
+      </div>
+    }>
+      <MisOrdenesContent />
+    </Suspense>
   );
 }
