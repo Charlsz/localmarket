@@ -82,12 +82,10 @@ export default function ProductCard({ product, featured = false }: ProductCardPr
   }
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
+    return `$${price.toLocaleString('es-CO', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(price)
+    })}`
   }
 
   // Mapeo de categorías

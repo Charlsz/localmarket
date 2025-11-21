@@ -87,11 +87,15 @@ export async function POST(request: Request) {
     const shipping_fee = 0; // Envío gratis por ahora
     const total = subtotal + tax + shipping_fee;
 
+    // Generar número de orden único
+    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+
     // Crear la orden
     const { data: order, error: orderError } = await (supabase
       .from('orders') as any)
       .insert({
         user_id: user.id,
+        order_number: orderNumber,
         subtotal,
         tax,
         shipping_fee,

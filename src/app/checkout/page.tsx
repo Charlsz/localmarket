@@ -74,12 +74,10 @@ export default function CheckoutPage() {
   }
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CR', {
-      style: 'currency',
-      currency: 'CRC',
+    return `$${price.toLocaleString('es-CO', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(price)
+    })}`
   }
 
   const subtotal = getTotalPrice()

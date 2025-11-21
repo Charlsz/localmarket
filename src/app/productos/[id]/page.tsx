@@ -201,7 +201,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="flex items-center justify-between mb-4">
                 <div>
                 <span className="text-3xl font-bold text-gray-900">
-                  ${product.price.toLocaleString('es-CO')}
+                  ${product.price.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
                   <span className="text-gray-500 ml-2">
                     / {product.unit}

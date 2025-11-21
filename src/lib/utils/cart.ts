@@ -3,11 +3,10 @@
  */
 
 export const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2
-  }).format(price)
+  return `$${price.toLocaleString('es-CO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  })}`
 }
 
 export const calculateTotal = (items: { price: number; quantity: number }[]): number => {
