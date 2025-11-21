@@ -1,9 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ShoppingCartIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline'
 import { useCartStore } from '@/lib/store/cart'
 import { ProductWithProvider } from '@/lib/types/database'
+import { getCurrentUser } from '@/lib/auth/client'
+import { useToast } from '@/components/ui/ToastContainer'
 
 interface ProductDetailClientProps {
   product: ProductWithProvider
@@ -13,6 +16,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
   const addItem = useCartStore((state) => state.addItem)
+  const router = useRouter()
+  const { showToast } = useToast()
 
   const handleAddToCart = async () => {
     if (product.stock === 0 || quantity > product.stock) return
@@ -20,6 +25,24 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     setIsAdding(true)
 
     try {
+      // Verificar autenticación
+      const { user } = await getCurrentUser()
+      
+      if (!user) {
+        showToast('Debes iniciar sesión para agregar productos al carrito', 'warning')
+        setTimeout(() => {
+          router.push('/login')
+        }, 1500)
+        return
+      }
+
+      // Verificar que no sea proveedor comprando su propio producto
+      if (user.id === product.provider_id) {
+        showToast('No puedes comprar tus propios productos', 'error')
+        setIsAdding(false)
+        return
+      }
+
       // Obtener la primera imagen disponible
       const productImage = product.image_url || (product.images && product.images.length > 0 ? product.images[0] : null)
 
@@ -32,10 +55,11 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         stock: product.stock
       }, quantity)
 
-      // Mostrar feedback visual
+      showToast(`${quantity} ${quantity === 1 ? 'unidad' : 'unidades'} agregadas al carrito`, 'success')
       setQuantity(1) // Reset quantity after adding
     } catch (error) {
       console.error('Error adding to cart:', error)
+      showToast('Error al agregar el producto al carrito', 'error')
     } finally {
       setIsAdding(false)
     }
@@ -112,13 +136,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           : 'Agregar al carrito'
         }
       </button>
-
-      {/* Mensaje de éxito temporal */}
-      {isAdding && (
-        <div className="text-center text-green-600 font-medium">
-          ¡Producto agregado al carrito!
-        </div>
-      )}
     </div>
   )
 }

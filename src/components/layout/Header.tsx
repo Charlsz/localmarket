@@ -45,13 +45,6 @@ export default function Header() {
   const isGuest = !loading && !profile
   const isAuthenticated = !loading && !!profile
 
-  // Determinar la URL del logo según el rol del usuario
-  const getLogoUrl = () => {
-    if (isProvider) return '/dashboard/productos'
-    if (isClient) return '/productos'
-    return '/' // Para invitados, va al home
-  }
-
   return (
     <>
       <header className="bg-white shadow-md sticky top-0 z-50">
@@ -59,7 +52,7 @@ export default function Header() {
           <div className="flex items-center h-16">
             {/* Logo */}
             <div className="flex items-center flex-shrink-0">
-              <Link href={getLogoUrl()} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                 <img 
                   src="/localmarketlogo.jpg" 
                   alt="LocalMarket Logo" 
