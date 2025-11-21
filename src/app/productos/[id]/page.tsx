@@ -6,28 +6,29 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid, CheckBadgeIcon as CheckBadgeIconSolid } from '@heroicons/react/24/solid'
 import ProductDetailClient from './ProductDetailClient'
 import ProductReviews from '@/components/products/ProductReviews'
+import { createServerSupabaseClient } from '@/lib/auth/server'
 
 interface ProductPageProps {
   params: Promise<{ id: string }>
 }
 
-// Función para obtener datos del producto desde la API
+// Función para obtener datos del producto directamente desde Supabase
 async function getProduct(id: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const response = await fetch(`${baseUrl}/api/products/${id}`, {
-      cache: 'no-store' // Para desarrollo, en producción usar cache apropiado
-    })
+    const supabase = await createServerSupabaseClient()
+    
+    const { data, error } = await supabase
+      .from('products_with_provider')
+      .select('*')
+      .eq('id', id)
+      .single()
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null
-      }
-      throw new Error('Error al cargar el producto')
+    if (error) {
+      console.error('Error fetching product:', error)
+      return null
     }
 
-    const result = await response.json()
-    return result.data
+    return data
   } catch (error) {
     console.error('Error fetching product:', error)
     return null

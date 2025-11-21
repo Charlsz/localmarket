@@ -47,8 +47,9 @@ export default function UserMenu() {
       await signOut();
       setProfile(null);
       setIsOpen(false);
+      // Redirigir usando router en lugar de window.location
       router.push('/');
-      window.location.reload();
+      router.refresh();
     } catch (error) {
       console.error('Error signing out:', error);
     }

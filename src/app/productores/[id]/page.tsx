@@ -13,6 +13,7 @@ import {
 import { StarIcon as StarIconSolid, CheckBadgeIcon as CheckBadgeIconSolid } from '@heroicons/react/24/solid'
 import ProductCard from '@/components/products/ProductCard'
 import { ProductWithProvider } from '@/lib/types/database'
+import { createServerSupabaseClient } from '@/lib/auth/server'
 
 interface ProviderPageProps {
   params: Promise<{ id: string }>
@@ -40,23 +41,53 @@ interface ProviderData {
   }
 }
 
-// Función para obtener datos del proveedor desde la API
+// Función para obtener datos del proveedor directamente desde Supabase
 async function getProvider(id: string): Promise<ProviderData | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const response = await fetch(`${baseUrl}/api/providers/${id}`, {
-      cache: 'no-store' // Para desarrollo, en producción usar cache apropiado
-    })
+    const supabase = await createServerSupabaseClient()
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null
-      }
-      throw new Error('Error al cargar el proveedor')
+    // Obtener perfil del proveedor
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', id)
+      .eq('role', 'provider')
+      .single()
+
+    if (profileError || !profile) {
+      console.error('Error fetching provider:', profileError)
+      return null
     }
 
-    const result = await response.json()
-    return result.data
+    // Obtener productos del proveedor con información adicional
+    const { data: products, error: productsError } = await supabase
+      .from('products_with_provider')
+      .select('*')
+      .eq('provider_id', id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+
+    if (productsError) {
+      console.error('Error fetching products:', productsError)
+    }
+
+    const providerProducts = products || []
+    const activeProducts = providerProducts.filter(p => p.is_active)
+    const totalReviews = providerProducts.reduce((sum, p) => sum + (p.review_count || 0), 0)
+    const avgRating = providerProducts.length > 0
+      ? providerProducts.reduce((sum, p) => sum + (p.avg_rating || 0), 0) / providerProducts.length
+      : 0
+
+    return {
+      ...profile,
+      products: providerProducts,
+      stats: {
+        total_products: providerProducts.length,
+        active_products: activeProducts.length,
+        avg_rating: avgRating,
+        total_reviews: totalReviews
+      }
+    }
   } catch (error) {
     console.error('Error fetching provider:', error)
     return null
