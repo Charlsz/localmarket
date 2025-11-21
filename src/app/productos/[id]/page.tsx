@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid, CheckBadgeIcon as CheckBadgeIconSolid } from '@heroicons/react/24/solid'
 import ProductDetailClient from './ProductDetailClient'
+import ProductReviews from '@/components/products/ProductReviews'
 
 interface ProductPageProps {
   params: Promise<{ id: string }>
@@ -239,6 +240,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <ProductDetailClient product={product} />
             </div>
           </div>
+        </div>
+
+        {/* Sección de Reviews */}
+        <div className="mt-12">
+          <ProductReviews productId={product.id} providerId={product.provider_id} />
         </div>
 
         {/* Productos relacionados o del mismo proveedor */}

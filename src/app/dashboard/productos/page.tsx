@@ -2,25 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { getCurrentUser } from '@/lib/auth/client';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/components/ui/ToastContainer';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import type { Product, ProductCategory } from '@/lib/types/database';
 
 export default function DashboardProductosPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    category: 'vegetables' as ProductCategory,
-    price: 0,
-    stock: 0,
-    unit: 'kg'
-  });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -59,71 +56,31 @@ export default function DashboardProductosPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!profile) return;
-
-    try {
-      const supabase = createClient();
-
-      if (editingProduct) {
-        // Actualizar producto
-        const { error } = await supabase
-          .from('products')
-          .update(formData)
-          .eq('id', editingProduct.id);
-
-        if (error) throw error;
-      } else {
-        // Crear nuevo producto
-        const { error } = await supabase
-          .from('products')
-          .insert({
-            ...formData,
-            provider_id: profile.id
-          });
-
-        if (error) throw error;
-      }
-
-      // Recargar productos
-      await loadProducts();
-      resetForm();
-    } catch (error) {
-      console.error('Error saving product:', error);
-      alert('Error al guardar el producto');
-    }
+  const handleDeleteClick = (productId: string) => {
+    setProductToDelete(productId);
+    setDeleteDialogOpen(true);
   };
 
-  const handleEdit = (product: Product) => {
-    setEditingProduct(product);
-    setFormData({
-      name: product.name,
-      description: product.description || '',
-      category: product.category,
-      price: product.price,
-      stock: product.stock,
-      unit: product.unit
-    });
-    setShowForm(true);
-  };
-
-  const handleDelete = async (productId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) return;
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
 
     try {
       const supabase = createClient();
       const { error } = await supabase
         .from('products')
         .delete()
-        .eq('id', productId);
+        .eq('id', productToDelete);
 
       if (error) throw error;
 
+      showToast('Producto eliminado exitosamente', 'success');
       await loadProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
-      alert('Error al eliminar el producto');
+      showToast('Error al eliminar el producto', 'error');
+    } finally {
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
     }
   };
 
@@ -137,24 +94,15 @@ export default function DashboardProductosPage() {
 
       if (error) throw error;
 
+      showToast(
+        `Producto ${!product.is_active ? 'activado' : 'desactivado'} exitosamente`,
+        'success'
+      );
       await loadProducts();
     } catch (error) {
       console.error('Error updating product status:', error);
-      alert('Error al actualizar el estado del producto');
+      showToast('Error al actualizar el estado del producto', 'error');
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      category: 'vegetables',
-      price: 0,
-      stock: 0,
-      unit: 'kg'
-    });
-    setEditingProduct(null);
-    setShowForm(false);
   };
 
   const formatCurrency = (amount: number) => {
@@ -340,23 +288,35 @@ export default function DashboardProductosPage() {
               </div>
             )}
 
+            {/* Botón para crear producto */}
+            <div className="mb-6">
+              <Link
+                href="/dashboard/productos/crear"
+                className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" />
+                Crear Nuevo Producto
+              </Link>
+            </div>
+
             {/* Lista de productos */}
             {products.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-12 bg-white rounded-lg shadow-md">
                 <div className="text-6xl mb-4">📦</div>
                 <h3 className="text-xl font-medium text-gray-900 mb-2">No tienes productos aún</h3>
                 <p className="text-gray-600 mb-6">Crea tu primer producto para empezar a vender.</p>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
+                <Link
+                  href="/dashboard/productos/crear"
+                  className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                 >
+                  <PlusIcon className="h-5 w-5 mr-2" />
                   Crear Primer Producto
-                </button>
+                </Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product) => (
-                  <div key={product.id} className="border border-gray-200 rounded-lg p-4">
+                  <div key={product.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="font-semibold text-gray-900">{product.name}</h3>
                       <span className={`px-2 py-1 text-xs rounded-full ${
@@ -365,6 +325,14 @@ export default function DashboardProductosPage() {
                         {product.is_active ? 'Activo' : 'Inactivo'}
                       </span>
                     </div>
+
+                    {product.image_url && (
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-32 object-cover rounded-lg mb-3"
+                      />
+                    )}
 
                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                       {product.description || 'Sin descripción'}
@@ -376,10 +344,10 @@ export default function DashboardProductosPage() {
                       <p><span className="font-medium">Stock:</span> {product.stock} {product.unit}</p>
                     </div>
 
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center pt-3 border-t">
                       <button
                         onClick={() => toggleProductStatus(product)}
-                        className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                        className={`px-3 py-1.5 text-xs rounded-md transition-colors font-medium ${
                           product.is_active
                             ? 'bg-red-100 text-red-700 hover:bg-red-200'
                             : 'bg-green-100 text-green-700 hover:bg-green-200'
@@ -389,17 +357,19 @@ export default function DashboardProductosPage() {
                       </button>
 
                       <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEdit(product)}
-                          className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                        <Link
+                          href={`/dashboard/productos/editar/${product.id}`}
+                          className="p-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                          title="Editar"
                         >
-                          Editar
-                        </button>
+                          <PencilIcon className="h-4 w-4" />
+                        </Link>
                         <button
-                          onClick={() => handleDelete(product.id)}
-                          className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+                          onClick={() => handleDeleteClick(product.id)}
+                          className="p-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+                          title="Eliminar"
                         >
-                          Eliminar
+                          <TrashIcon className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
@@ -407,6 +377,21 @@ export default function DashboardProductosPage() {
                 ))}
               </div>
             )}
+
+            {/* Dialog de confirmación para eliminar */}
+            <ConfirmDialog
+              isOpen={deleteDialogOpen}
+              title="Eliminar producto"
+              message="¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer."
+              confirmText="Eliminar"
+              cancelText="Cancelar"
+              onConfirm={handleDeleteConfirm}
+              onCancel={() => {
+                setDeleteDialogOpen(false);
+                setProductToDelete(null);
+              }}
+              variant="danger"
+            />
           </div>
         </div>
       </div>

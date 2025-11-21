@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { StarIcon, ShoppingCartIcon } from '@heroicons/react/24/solid'
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 import { useCartStore } from '@/lib/store/cart'
+import { getCurrentUser } from '@/lib/auth/client'
 import { Product } from '@/lib/types/database'
 
 interface ProductCardProps {
@@ -15,14 +17,32 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, featured = false }: ProductCardProps) {
   const [imageError, setImageError] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const addItem = useCartStore((state) => state.addItem)
+  const router = useRouter()
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  const checkAuth = async () => {
+    const { user } = await getCurrentUser()
+    setIsAuthenticated(!!user)
+  }
 
   // Obtener la primera imagen disponible
   const productImage = product.image_url || (product.images && product.images.length > 0 ? product.images[0] : null)
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault() // Prevent navigation when clicking the button
+    e.preventDefault()
     e.stopPropagation()
+    
+    // Verificar si el usuario está autenticado
+    if (!isAuthenticated) {
+      // Redirigir a login
+      router.push('/login?redirect=/productos')
+      return
+    }
     
     if (product.stock > 0) {
       addItem({

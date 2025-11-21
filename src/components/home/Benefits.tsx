@@ -1,0 +1,88 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+
+const benefits = [
+  {
+    icon: (
+      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    ),
+    title: 'Productos Frescos',
+    description: 'Compra directamente de productores locales. Garantía de frescura y calidad en cada producto.',
+  },
+  {
+    icon: (
+      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    ),
+    title: 'Apoya lo Local',
+    description: 'Contribuye al desarrollo de tu comunidad comprando directamente a productores de tu zona.',
+  },
+  {
+    icon: (
+      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
+    title: 'Compra Segura',
+    description: 'Sistema de pago seguro y protegido. Tu información está siempre protegida.',
+  },
+  {
+    icon: (
+      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    ),
+    title: 'Entrega Rápida',
+    description: 'Recibe tus productos frescos en tiempo récord. Opciones de entrega flexibles.',
+  },
+];
+
+export default function Benefits() {
+  return (
+    <section className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            ¿Por qué elegir LocalMarket?
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Conectamos a consumidores con productores locales de forma directa, simple y segura.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {benefits.map((benefit, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <div className="text-green-600 mb-4">
+                {benefit.icon}
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {benefit.title}
+              </h3>
+              <p className="text-gray-600">
+                {benefit.description}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link
+            href="/productos"
+            className="inline-block px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
+          >
+            Ver Productos
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}

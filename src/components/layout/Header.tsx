@@ -43,6 +43,7 @@ export default function Header() {
   const isProvider = profile?.role === 'provider'
   const isClient = !loading && profile?.role === 'client'
   const isGuest = !loading && !profile
+  const isAuthenticated = !loading && !!profile
 
   // Determinar la URL del logo según el rol del usuario
   const getLogoUrl = () => {
@@ -59,9 +60,11 @@ export default function Header() {
             {/* Logo */}
             <div className="flex items-center flex-shrink-0">
               <Link href={getLogoUrl()} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center shadow-md">
-                  <span className="text-white font-bold text-base">LM</span>
-                </div>
+                <img 
+                  src="/localmarketlogo.jpg" 
+                  alt="LocalMarket Logo" 
+                  className="w-10 h-10 rounded-full object-cover shadow-md"
+                />
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">LocalMarket</span>
               </Link>
             </div>
@@ -134,8 +137,8 @@ export default function Header() {
 
             {/* Right Icons */}
             <div className="flex items-center space-x-2 flex-shrink-0">
-              {/* Cart - Solo para clientes */}
-              {mounted && !loading && !isProvider && (
+              {/* Cart - Solo para usuarios autenticados y que no sean proveedores */}
+              {mounted && !loading && isAuthenticated && !isProvider && (
                 <button 
                   onClick={() => setIsCartOpen(true)}
                   className="relative p-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"

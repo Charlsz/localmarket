@@ -359,6 +359,41 @@ npm run lint
 
 Este proyecto es privado y está en desarrollo.
 
+## Nuevos Componentes UI
+
+### Componentes de Página Principal
+
+- **Hero**: Sección principal con título, descripción y estadísticas
+- **Benefits**: Sección de beneficios con iconos y descripciones
+- **FeaturedProducts**: Productos destacados con carga dinámica desde Supabase
+- **HowItWorks**: Explicación de cómo funciona la plataforma en 4 pasos
+- **CallToAction**: Llamado a la acción para productores
+
+### Componentes de UI
+
+- **BackgroundPattern**: Patrones de fondo decorativos (dots, grid, gradient)
+- **ConfirmDialog**: Modal de confirmación personalizable
+- **ImageUploader**: Subida de imágenes con drag & drop
+- **ToastContainer**: Sistema de notificaciones toast con useToast hook
+- **SEOHead**: Componente para gestión de meta tags
+
+### Mejoras de SEO
+
+- Metadata completa en layout con OpenGraph y Twitter Cards
+- Sitemap.xml dinámico
+- robots.txt configurado
+- Páginas de error personalizadas (error.tsx, not-found.tsx)
+- Manifest.json para PWA
+
+### Hooks Personalizados
+
+- **useSEO**: Hook para gestión de metadata en el cliente
+
+### Estilos
+
+- **colors.ts**: Sistema de colores centralizado con paleta completa
+
 ---
 
 **LocalMarket** - *Conectando productores locales con tu comunidad*
+
