@@ -1,24 +1,29 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import ProductForm from '@/components/products/ProductForm';
+import { createServerSupabaseClient } from '@/lib/auth/server';
+import type { ProductWithProvider } from '@/lib/types/database';
 
 interface EditProductPageProps {
   params: Promise<{ id: string }>;
 }
 
-async function getProduct(id: string) {
+async function getProduct(id: string): Promise<ProductWithProvider | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/products/${id}`, {
-      cache: 'no-store',
-    });
+    const supabase = await createServerSupabaseClient();
+    
+    const { data, error } = await supabase
+      .from('products_with_provider')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!response.ok) {
+    if (error) {
+      console.error('Error fetching product:', error);
       return null;
     }
 
-    const result = await response.json();
-    return result.data;
+    return data;
   } catch (error) {
     console.error('Error fetching product:', error);
     return null;

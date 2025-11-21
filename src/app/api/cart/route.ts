@@ -22,12 +22,12 @@ export async function GET() {
       .from('carts')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .single() as { data: any };
 
     if (!cart) {
       // Crear carrito si no existe
-      const { data: newCart, error: createError } = await supabase
-        .from('carts')
+      const { data: newCart, error: createError } = await (supabase
+        .from('carts') as any)
         .insert({ user_id: user.id })
         .select()
         .single();
@@ -43,12 +43,12 @@ export async function GET() {
         *,
         product:products (*)
       `)
-      .eq('cart_id', cart.id);
+      .eq('cart_id', cart!.id);
 
     if (itemsError) throw itemsError;
 
     // Calcular total
-    const total = items?.reduce((sum, item) => {
+    const total = items?.reduce((sum, item: any) => {
       return sum + (item.quantity * item.price_snapshot);
     }, 0) || 0;
 
@@ -99,11 +99,11 @@ export async function POST(request: Request) {
       .from('carts')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .single() as { data: any };
 
     if (!cart) {
-      const { data: newCart, error: createError } = await supabase
-        .from('carts')
+      const { data: newCart, error: createError } = await (supabase
+        .from('carts') as any)
         .insert({ user_id: user.id })
         .select()
         .single();
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       .from('products')
       .select('price, stock')
       .eq('id', product_id)
-      .single();
+      .single() as { data: any; error: any };
 
     if (productError || !product) {
       return NextResponse.json(
@@ -138,9 +138,9 @@ export async function POST(request: Request) {
     const { data: existingItem } = await supabase
       .from('cart_items')
       .select('*')
-      .eq('cart_id', cart.id)
+      .eq('cart_id', cart!.id)
       .eq('product_id', product_id)
-      .single();
+      .single() as { data: any };
 
     if (existingItem) {
       // Actualizar cantidad
@@ -153,8 +153,8 @@ export async function POST(request: Request) {
         );
       }
 
-      const { data, error } = await supabase
-        .from('cart_items')
+      const { data, error } = await (supabase
+        .from('cart_items') as any)
         .update({ quantity: newQuantity })
         .eq('id', existingItem.id)
         .select()
@@ -165,10 +165,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ data }, { status: 200 });
     } else {
       // Agregar nuevo item
-      const { data, error } = await supabase
-        .from('cart_items')
+      const { data, error} = await (supabase
+        .from('cart_items') as any)
         .insert({
-          cart_id: cart.id,
+          cart_id: cart!.id,
           product_id,
           quantity,
           price_snapshot: product.price,
@@ -209,7 +209,7 @@ export async function DELETE() {
       .from('carts')
       .select('id')
       .eq('user_id', user.id)
-      .single();
+      .single() as { data: any };
 
     if (!cart) {
       return NextResponse.json(
@@ -222,7 +222,7 @@ export async function DELETE() {
     const { error } = await supabase
       .from('cart_items')
       .delete()
-      .eq('cart_id', cart.id);
+      .eq('cart_id', cart!.id);
 
     if (error) throw error;
 

@@ -7,13 +7,14 @@ import { StarIcon as StarIconSolid, CheckBadgeIcon as CheckBadgeIconSolid } from
 import ProductDetailClient from './ProductDetailClient'
 import ProductReviews from '@/components/products/ProductReviews'
 import { createServerSupabaseClient } from '@/lib/auth/server'
+import type { ProductWithProvider } from '@/lib/types/database'
 
 interface ProductPageProps {
   params: Promise<{ id: string }>
 }
 
 // Función para obtener datos del producto directamente desde Supabase
-async function getProduct(id: string) {
+async function getProduct(id: string): Promise<ProductWithProvider | null> {
   try {
     const supabase = await createServerSupabaseClient()
     
@@ -28,7 +29,7 @@ async function getProduct(id: string) {
       return null
     }
 
-    return data
+    return data as ProductWithProvider
   } catch (error) {
     console.error('Error fetching product:', error)
     return null

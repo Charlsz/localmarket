@@ -21,6 +21,7 @@ export default function Header() {
   const [loading, setLoading] = useState(true)
   
   // Subscribirse correctamente al store del carrito
+  const hasHydrated = useCartStore((state) => state._hasHydrated)
   const totalItems = useCartStore((state) => state.getTotalItems())
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export default function Header() {
             {/* Right Icons */}
             <div className="flex items-center space-x-2 flex-shrink-0">
               {/* Cart - Solo para usuarios autenticados y que no sean proveedores */}
-              {mounted && !loading && isAuthenticated && !isProvider && (
+              {mounted && hasHydrated && !loading && isAuthenticated && !isProvider && (
                 <button 
                   onClick={() => setIsCartOpen(true)}
                   className="relative p-2 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
@@ -245,7 +246,7 @@ export default function Header() {
       </header>
 
       {/* Shopping Cart Sidebar - Solo para clientes */}
-      {mounted && !loading && !isProvider && (
+      {mounted && hasHydrated && !loading && !isProvider && (
         <ShoppingCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       )}
     </>

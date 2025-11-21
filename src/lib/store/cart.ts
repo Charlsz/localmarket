@@ -20,6 +20,8 @@ interface CartStore {
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
+  _hasHydrated: boolean
+  setHasHydrated: (state: boolean) => void
 }
 
 export const useCartStore = create<CartStore>()(
@@ -82,10 +84,24 @@ export const useCartStore = create<CartStore>()(
       
       getTotalPrice: () => {
         return get().items.reduce((total, item) => total + (item.price * item.quantity), 0)
+      },
+      
+      _hasHydrated: false,
+      setHasHydrated: (state) => {
+        set({
+          _hasHydrated: state
+        })
       }
     }),
     {
-      name: 'localmarket-cart'
+      name: 'localmarket-cart',
+      skipHydration: true
     }
   )
 )
+
+// Hidratar el store en el cliente
+if (typeof window !== 'undefined') {
+  useCartStore.persist.rehydrate()
+  useCartStore.getState().setHasHydrated(true)
+}

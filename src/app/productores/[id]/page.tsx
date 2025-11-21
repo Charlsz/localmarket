@@ -72,14 +72,14 @@ async function getProvider(id: string): Promise<ProviderData | null> {
     }
 
     const providerProducts = products || []
-    const activeProducts = providerProducts.filter(p => p.is_active)
-    const totalReviews = providerProducts.reduce((sum, p) => sum + (p.review_count || 0), 0)
+    const activeProducts = providerProducts.filter((p: any) => p.is_active)
+    const totalReviews = providerProducts.reduce((sum: number, p: any) => sum + (p.review_count || 0), 0)
     const avgRating = providerProducts.length > 0
-      ? providerProducts.reduce((sum, p) => sum + (p.avg_rating || 0), 0) / providerProducts.length
+      ? providerProducts.reduce((sum: number, p: any) => sum + (p.avg_rating || 0), 0) / providerProducts.length
       : 0
 
     return {
-      ...profile,
+      ...(profile as any),
       products: providerProducts,
       stats: {
         total_products: providerProducts.length,

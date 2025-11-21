@@ -18,6 +18,19 @@ export default function DashboardProductosPage() {
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    category: 'vegetables' as ProductCategory,
+    price: 0,
+    stock: 0,
+    unit: 'unidad',
+    image_url: '',
+    is_active: true,
+    is_featured: false
+  });
 
   useEffect(() => {
     loadProducts();
@@ -81,6 +94,64 @@ export default function DashboardProductosPage() {
     } finally {
       setDeleteDialogOpen(false);
       setProductToDelete(null);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      category: 'vegetables',
+      price: 0,
+      stock: 0,
+      unit: 'unidad',
+      image_url: '',
+      is_active: true,
+      is_featured: false
+    });
+    setShowForm(false);
+    setEditingProduct(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!profile) return;
+
+    try {
+      const supabase = createClient();
+      
+      if (editingProduct) {
+        // Actualizar producto existente
+        const { error } = await supabase
+          .from('products')
+          .update({
+            ...formData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingProduct.id);
+
+        if (error) throw error;
+        showToast('Producto actualizado exitosamente', 'success');
+      } else {
+        // Crear nuevo producto
+        const { error } = await supabase
+          .from('products')
+          .insert({
+            ...formData,
+            provider_id: profile.id
+          });
+
+        if (error) throw error;
+        showToast('Producto creado exitosamente', 'success');
+      }
+
+      // Resetear formulario
+      resetForm();
+      await loadProducts();
+    } catch (error) {
+      console.error('Error saving product:', error);
+      showToast('Error al guardar el producto', 'error');
     }
   };
 

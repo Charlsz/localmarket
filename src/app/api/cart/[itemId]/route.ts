@@ -36,7 +36,7 @@ export async function PUT(
       .from('cart_items')
       .select('*, cart:carts!inner(user_id), product:products!inner(stock)')
       .eq('id', itemId)
-      .single();
+      .single() as { data: any };
 
     if (!cartItem) {
       return NextResponse.json(
@@ -64,8 +64,8 @@ export async function PUT(
       );
     }
 
-    const { data, error } = await supabase
-      .from('cart_items')
+    const { data, error } = await (supabase
+      .from('cart_items') as any)
       .update({ quantity })
       .eq('id', itemId)
       .select()
@@ -108,7 +108,7 @@ export async function DELETE(
       .from('cart_items')
       .select('*, cart:carts!inner(user_id)')
       .eq('id', itemId)
-      .single();
+      .single() as { data: any };
 
     if (!cartItem) {
       return NextResponse.json(

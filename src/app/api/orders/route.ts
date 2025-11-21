@@ -30,13 +30,13 @@ export async function GET(request: Request) {
       query = query.eq('status', status);
     }
 
-    const { data: orders, error } = await query;
+    const { data: orders, error } = await query as { data: any[] | null; error: any };
 
     if (error) throw error;
 
     // Obtener items para cada orden
     const ordersWithItems = await Promise.all(
-      (orders || []).map(async (order) => {
+      (orders || []).map(async (order: any) => {
         const { data: items } = await supabase
           .from('order_items')
           .select('*')

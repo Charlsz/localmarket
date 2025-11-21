@@ -27,7 +27,7 @@ export async function GET(
       .select('*')
       .eq('id', id)
       .eq('user_id', user.id)
-      .single();
+      .single() as { data: any; error: any };
 
     if (orderError) {
       if (orderError.code === 'PGRST116') {
@@ -89,8 +89,8 @@ export async function PUT(
     if (status) updates.status = status;
     if (payment_status) updates.payment_status = payment_status;
 
-    const { data, error } = await supabase
-      .from('orders')
+    const { data, error } = await (supabase
+      .from('orders') as any)
       .update(updates)
       .eq('id', id)
       .select()

@@ -33,13 +33,13 @@ interface ProductFormProps {
   initialData?: {
     id?: string;
     name: string;
-    description: string;
+    description: string | null;
     category: string;
     price: number;
     stock: number;
     unit: string;
-    image_url?: string;
-    images?: string[];
+    image_url?: string | null;
+    images?: string[] | null;
     is_active: boolean;
     is_featured: boolean;
   };

@@ -26,7 +26,7 @@ export async function GET(request: Request) {
         );
       }
 
-      let query = supabase
+      const query = supabase
         .from('products')
         .select('*')
         .eq('provider_id', user.id)
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .single() as { data: any };
 
     if (profile?.role !== 'provider') {
       return NextResponse.json(
@@ -124,8 +124,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data, error } = await supabase
-      .from('products')
+    const { data, error } = await (supabase
+      .from('products') as any)
       .insert({
         provider_id: user.id,
         name,

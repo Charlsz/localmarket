@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/auth/server';
 
+interface ProductOwnership {
+  provider_id: string;
+}
+
 /**
  * GET /api/products/[id]
  * Obtiene un producto específico por ID
@@ -60,13 +64,13 @@ export async function PUT(
     }
 
     // Verificar que el producto pertenece al usuario
-    const { data: product } = await supabase
+    const { data: product, error: productError } = await supabase
       .from('products')
       .select('provider_id')
       .eq('id', id)
-      .single();
+      .single<ProductOwnership>();
 
-    if (!product) {
+    if (productError || !product) {
       return NextResponse.json(
         { error: 'Producto no encontrado' },
         { status: 404 }
@@ -94,7 +98,7 @@ export async function PUT(
       is_active
     } = body;
 
-    const updates: any = {};
+    const updates: Record<string, any> = {};
     if (name !== undefined) updates.name = name;
     if (description !== undefined) updates.description = description;
     if (category !== undefined) updates.category = category;
@@ -106,8 +110,8 @@ export async function PUT(
     if (is_featured !== undefined) updates.is_featured = is_featured;
     if (is_active !== undefined) updates.is_active = is_active;
 
-    const { data, error } = await supabase
-      .from('products')
+    const { data, error } = await (supabase
+      .from('products') as any)
       .update(updates)
       .eq('id', id)
       .select()
@@ -146,13 +150,13 @@ export async function DELETE(
     }
 
     // Verificar que el producto pertenece al usuario
-    const { data: product } = await supabase
+    const { data: product, error: productError } = await supabase
       .from('products')
       .select('provider_id')
       .eq('id', id)
-      .single();
+      .single<ProductOwnership>();
 
-    if (!product) {
+    if (productError || !product) {
       return NextResponse.json(
         { error: 'Producto no encontrado' },
         { status: 404 }
@@ -167,8 +171,8 @@ export async function DELETE(
     }
 
     // En lugar de eliminar, marcamos como inactivo (soft delete)
-    const { error } = await supabase
-      .from('products')
+    const { error } = await (supabase
+      .from('products') as any)
       .update({ is_active: false })
       .eq('id', id);
 
