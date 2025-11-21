@@ -151,10 +151,10 @@ export default function ProductReviews({ productId, providerId }: ProductReviews
     }
   };
 
-  const calculateAverageRating = () => {
+  const calculateAverageRating = (): number => {
     if (reviews.length === 0) return 0;
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
-    return (sum / reviews.length).toFixed(1);
+    return parseFloat((sum / reviews.length).toFixed(1));
   };
 
   const renderStars = (count: number, interactive = false, onHover?: (rating: number) => void, onClick?: (rating: number) => void) => {
@@ -198,9 +198,9 @@ export default function ProductReviews({ productId, providerId }: ProductReviews
         {reviews.length > 0 && (
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              {renderStars(Math.round(parseFloat(calculateAverageRating())))}
+              {renderStars(Math.round(calculateAverageRating()))}
               <span className="text-2xl font-bold text-gray-900">
-                {calculateAverageRating()}
+                {calculateAverageRating().toFixed(1)}
               </span>
             </div>
             <span className="text-gray-600">
