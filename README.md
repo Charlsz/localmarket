@@ -2,7 +2,7 @@
 
 **Eslogan:** *"Conectando productores locales con tu comunidad"*
 
-**URL de producción:** [https://localmarket-dusky.vercel.app](https://localmarket-dusky.vercel.app/)
+**URL de producción:** [https://localmarket-seven.vercel.app/](https://localmarket-seven.vercel.app/)
 
 Plataforma digital que facilita la comercialización de productos agrícolas, artesanales y alimenticios de productores locales. Conecta directamente a agricultores, artesanos y pequeños productores con consumidores que buscan productos frescos, sostenibles y de proximidad.
 
